@@ -1,0 +1,87 @@
+/*
+  Usage:
+  <div class="gradient-bg">
+    ...your content (logo, nav, headline, footer text) goes here, position:relative/absolute...
+  </div>
+
+  Just make sure .gradient-bg has a defined height (100vh for full page,
+  or a fixed height/width for a section/card).
+*/
+
+.gradient-bg {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #0a0a10;
+  overflow-x: hidden;
+  isolation: isolate;
+}
+
+.gradient-bg::before,
+.gradient-bg::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* large indigo/violet blob — upper area, sweeping right */
+.gradient-bg::before {
+  width: 75%;
+  height: 70%;
+  top: -10%;
+  left: 5%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    #6b6fd8 0%,
+    #4a4a9e 35%,
+    #23233f 65%,
+    transparent 100%
+  );
+  opacity: 0.9;
+}
+
+/* soft pale lavender/white blob — lower right corner */
+.gradient-bg::after {
+  width: 70%;
+  height: 65%;
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(
+    circle at 60% 60%,
+    #e7e6f5 0%,
+    #b9b8d9 30%,
+    #55558a 60%,
+    transparent 100%
+  );
+  opacity: 0.85;
+}
+
+/* extra mid blob for the smoky blue-violet transition in the middle-right */
+.gradient-bg .gradient-blob-mid {
+  content: "";
+  position: fixed;
+  width: 55%;
+  height: 55%;
+  top: 20%;
+  right: 5%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #5b5fc7 0%,
+    #34346b 45%,
+    transparent 80%
+  );
+  filter: blur(100px);
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* keep your real content above the blobs */
+.gradient-bg > * {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread — daily habits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/gradient-background.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="gradient-bg">
+<div class="gradient-blob-mid"></div>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"></span>
+      <span class="brand-name">Welcome Debesh!!</span>
+    </div>
+    <div class="date-card">
+      <span class="date-weekday" id="weekday">—</span>
+      <span class="date-full" id="fulldate">—</span>
+    </div>
+  </header>
+
+  <main class="board">
+
+    <section class="sheet-panel">
+      <div class="sheet-head">
+        <button class="nav-btn" id="prevWeek" aria-label="Previous week"><i class="ti ti-chevron-left"></i></button>
+        <div class="week-label" id="weekLabel">Week of —</div>
+        <button class="nav-btn" id="nextWeek" aria-label="Next week"><i class="ti ti-chevron-right"></i></button>
+        <button class="today-btn" id="todayBtn">Today</button>
+      </div>
+
+      <div class="sheet-table" id="sheetTable">
+        <!-- rows injected by JS -->
+      </div>
+
+      <form class="add-row" id="addForm">
+        <i class="ti ti-plus"></i>
+        <input type="text" id="newHabitName" placeholder="Add a habit — e.g. Stretch 10 min" autocomplete="off">
+      </form>
+    </section>
+
+    <aside class="stats-panel">
+      <div class="stat-card">
+        <span class="stat-label">Longest streak today</span>
+        <span class="stat-value" id="topStreak">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Average this week</span>
+        <span class="stat-value" id="weekAvg">—</span>
+      </div>
+
+      <div class="chart-block">
+        <span class="stat-label">Consistency, last 8 weeks</span>
+        <div class="chart-holder"><canvas id="weeksChart"></canvas></div>
+      </div>
+    </aside>
+
+  </main>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
