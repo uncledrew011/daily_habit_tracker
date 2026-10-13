@@ -54,7 +54,7 @@ def init_db():
                     ('Self study', '📚', 'learning', 8),
                     ('Work on skills', '🛠️', 'learning', 9),
                     ('Dinner', '🍽️', 'meals', 10),
-                    ('No porn', '🚫', 'discipline', 11))
+                    ('No p*rn', '🚫', 'discipline', 11))
                    INSERT INTO habits (name, icon, category, sort_order)
                    SELECT name, icon, category, sort_order FROM v
                    WHERE (SELECT COUNT(*) FROM habits) = 0""",
