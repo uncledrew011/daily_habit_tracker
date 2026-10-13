@@ -14,8 +14,8 @@ import os
 import urllib.error
 import urllib.request
 
-TURSO_URL = (os.environ.get("TURSO_DATABASE_URL") or "").strip()
-TURSO_TOKEN = (os.environ.get("TURSO_AUTH_TOKEN") or "").strip()
+TURSO_URL = (os.environ.get("libsql://habit-tracker-uncledrew011.aws-ap-south-1.turso.io") or "").strip()
+TURSO_TOKEN = (os.environ.get("eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTE4ODg0NTAsImlkIjoiMDE5ZmI5YWUtZTMwMS03NGQzLWI3ZjItZGY5N2ViODdkMzVmIiwia2lkIjoiT0phRkNWbG1EV3BaSmJYM1I5T3o3bkVkbjB4Z3RaZTFwaXp0NGVfY28yNCIsInJpZCI6IjU0MDFiOWU4LTdjNTctNDZjYi1iMTA2LTY1MTJlOGU5ZWU5MiJ9.6eMes4gEhYm0RrcNNkvyMCYNuwpJ3Dzi8G8Vi15TS7-JgGuue0WK9HndjU-K2JK1_MjWD9WV69V9W_noZ8xiDw") or "").strip()
 
 USING_TURSO = bool(TURSO_URL)
 
