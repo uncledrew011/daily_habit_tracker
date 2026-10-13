@@ -1,10 +1,17 @@
 import random
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from flask import Flask, jsonify, request, render_template
 
 import db
 
 app = Flask(__name__)
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def today_local():
+    """Today in India time (the server itself runs in UTC)."""
+    return datetime.now(IST).date()
 
 
 def init_db():
@@ -54,7 +61,7 @@ def init_db():
             habit_ids.append(db.last_insert_id())
 
         random.seed(7)
-        today = date.today()
+        today = today_local()
         for offset in range(56, -1, -1):
             d = today - timedelta(days=offset)
             for hid in habit_ids:
@@ -77,13 +84,13 @@ def index():
 
 @app.route("/api/today")
 def today():
-    return jsonify({"today": date.today().isoformat()})
+    return jsonify({"today": today_local().isoformat()})
 
 
 @app.route("/api/week")
 def get_week():
     ref = request.args.get("date")
-    anchor = date.fromisoformat(ref) if ref else date.today()
+    anchor = date.fromisoformat(ref) if ref else today_local()
     start, end = week_bounds(anchor)
 
     habits = db.query("SELECT * FROM habits WHERE is_active=1 ORDER BY sort_order")
@@ -116,7 +123,7 @@ def get_week():
             "start": start.isoformat(),
             "end": end.isoformat(),
             "days": days,
-            "today": date.today().isoformat(),
+            "today": today_local().isoformat(),
             "habits": result,
         }
     )
@@ -129,7 +136,9 @@ def current_streak(habit_id):
     )
     dates = {date.fromisoformat(r["log_date"]) for r in rows}
     streak = 0
-    cursor = date.today()
+    cursor = today_local()
+    if cursor not in dates:
+        cursor -= timedelta(days=1)
     while cursor in dates:
         streak += 1
         cursor -= timedelta(days=1)
@@ -173,7 +182,7 @@ def delete_habit(habit_id):
 @app.route("/api/weekly-stats")
 def weekly_stats():
     weeks = int(request.args.get("weeks", 8))
-    today_d = date.today()
+    today_d = today_local()
     monday = today_d - timedelta(days=today_d.weekday())
 
     stats = []
@@ -192,8 +201,22 @@ def weekly_stats():
     return jsonify(stats)
 
 
-# Runs on import too (needed for gunicorn / Vercel, where __main__ never executes)
-init_db()
+_db_ready = False
+
+
+@app.before_request
+def ensure_db():
+    """Create tables on the first request; report DB problems instead of crashing."""
+    global _db_ready
+    if _db_ready:
+        return None
+    try:
+        init_db()
+        _db_ready = True
+    except Exception as e:  # shows the real reason in the browser and Vercel logs
+        app.logger.exception("Database init failed")
+        return jsonify({"error": "database init failed", "detail": str(e)}), 500
+    return None
 
 if __name__ == "__main__":
     import os
