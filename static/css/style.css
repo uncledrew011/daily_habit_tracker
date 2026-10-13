@@ -162,8 +162,11 @@ body{
   display:flex;align-items:center;justify-content:center;
   font-size:10px;
   color:transparent;
-  transition:transform .12s ease;
+  transition:transform .12s ease, background-color .18s ease, border-color .18s ease;
   flex-shrink:0;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none;
 }
 .day-dot:hover{transform:scale(1.12);border-color:var(--sage);}
 .day-dot.done{
@@ -254,4 +257,28 @@ body{
   letter-spacing:.04em;
   color:var(--text-muted);
   font-family:var(--font-mono);
+}
+/* ---------- smooth, instant-feeling interactions ---------- */
+.day-dot:active{transform:scale(.88);}
+.day-dot.done i{animation:pop .22s ease-out;}
+@keyframes pop{0%{transform:scale(.3);opacity:0;}70%{transform:scale(1.2);opacity:1;}100%{transform:scale(1);}}
+.day-dot.pending{opacity:.45;pointer-events:none;}
+.sheet-row{transition:opacity .18s ease;}
+.sheet-row.removing{opacity:0;}
+.sheet-table.loading{opacity:.5;pointer-events:none;transition:opacity .15s ease;}
+.pct-cell{transition:color .15s ease;}
+.load-error{padding:28px 4px;color:var(--text-secondary);font-size:14px;display:flex;align-items:center;gap:12px;}
+.load-error .today-btn{height:28px;}
+.toast{
+  position:fixed;left:50%;bottom:28px;
+  transform:translate(-50%,20px);
+  background:var(--surface-2);color:var(--text-primary);
+  border:0.5px solid var(--border-strong);
+  padding:10px 16px;border-radius:10px;font-size:13px;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;z-index:50;
+}
+.toast.show{opacity:1;transform:translate(-50%,0);}
+@media (prefers-reduced-motion:reduce){
+  .day-dot,.day-dot.done i,.sheet-row,.sheet-table{transition:none;animation:none;}
 }

@@ -160,6 +160,16 @@ def get_week():
 def toggle():
     data = request.get_json()
     habit_id, log_date = data["habit_id"], data["date"]
+    want = data.get("status")
+    if want is not None:
+        # Explicit status from the browser: safe to repeat, one round trip.
+        status = 1 if want else 0
+        db.execute(
+            """INSERT INTO habit_logs (habit_id, log_date, status) VALUES (?,?,?)
+               ON CONFLICT(habit_id, log_date) DO UPDATE SET status = excluded.status""",
+            [habit_id, log_date, status],
+        )
+        return jsonify({"status": status})
     _, rows = db.run(
         [
             (
@@ -167,10 +177,7 @@ def toggle():
                    ON CONFLICT(habit_id, log_date) DO UPDATE SET status = 1 - status""",
                 [habit_id, log_date],
             ),
-            (
-                "SELECT status FROM habit_logs WHERE habit_id=? AND log_date=?",
-                [habit_id, log_date],
-            ),
+            ("SELECT status FROM habit_logs WHERE habit_id=? AND log_date=?", [habit_id, log_date]),
         ]
     )
     return jsonify({"status": rows[0]["status"] if rows else 0})
