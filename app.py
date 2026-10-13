@@ -1,4 +1,3 @@
-import random
 from datetime import date, datetime, timedelta, timezone
 from flask import Flask, jsonify, request, render_template
 
@@ -36,40 +35,33 @@ def init_db():
         )"""
     )
 
-    count = db.query("SELECT COUNT(*) c FROM habits")[0]["c"]
-    if count == 0:
-        sample_habits = [
-            ("5hr sleep", "😴", "wellness", 0),
-            ("Early morning", "🌅", "morning", 1),
-            ("Shower", "🚿", "wellness", 2),
-            ("Pray", "🙏", "mindfulness", 3),
-            ("Drink water", "💧", "wellness", 4),
-            ("Breakfast", "🍳", "meals", 5),
-            ("Exercise", "🏋️", "fitness", 6),
-            ("Lunch", "🍲", "meals", 7),
-            ("Self study", "📚", "learning", 8),
-            ("Work on skills", "🛠️", "learning", 9),
-            ("Dinner", "🍽️", "meals", 10),
-            ("No porn", "🚫", "discipline", 11),
-        ]
-        habit_ids = []
-        for name, icon, category, order in sample_habits:
-            db.execute(
-                "INSERT INTO habits (name, icon, category, sort_order) VALUES (?,?,?,?)",
-                [name, icon, category, order],
-            )
-            habit_ids.append(db.last_insert_id())
+    # Seed the starter habits in ONE atomic statement, only if the table is empty.
+    # (Two requests starting at once can no longer both seed and create duplicates.)
+    db.execute(
+        """WITH v(name, icon, category, sort_order) AS (VALUES
+            ('5hr sleep', '😴', 'wellness', 0),
+            ('Early morning', '🌅', 'morning', 1),
+            ('Shower', '🚿', 'wellness', 2),
+            ('Pray', '🙏', 'mindfulness', 3),
+            ('Drink water', '💧', 'wellness', 4),
+            ('Breakfast', '🍳', 'meals', 5),
+            ('Exercise', '🏋️', 'fitness', 6),
+            ('Lunch', '🍲', 'meals', 7),
+            ('Self study', '📚', 'learning', 8),
+            ('Work on skills', '🛠️', 'learning', 9),
+            ('Dinner', '🍽️', 'meals', 10),
+            ('No porn', '🚫', 'discipline', 11))
+           INSERT INTO habits (name, icon, category, sort_order)
+           SELECT name, icon, category, sort_order FROM v
+           WHERE (SELECT COUNT(*) FROM habits) = 0"""
+    )
 
-        random.seed(7)
-        today = today_local()
-        for offset in range(56, -1, -1):
-            d = today - timedelta(days=offset)
-            for hid in habit_ids:
-                if random.random() < 0.68:
-                    db.execute(
-                        "INSERT OR IGNORE INTO habit_logs (habit_id, log_date, status) VALUES (?,?,1)",
-                        [hid, d.isoformat()],
-                    )
+    # Clean up exact duplicates left by the earlier double-seed (keeps the oldest row).
+    db.execute(
+        """DELETE FROM habits WHERE id NOT IN
+           (SELECT MIN(id) FROM habits GROUP BY name, category, sort_order)"""
+    )
+    db.execute("DELETE FROM habit_logs WHERE habit_id NOT IN (SELECT id FROM habits)")
 
 
 def week_bounds(anchor: date):
